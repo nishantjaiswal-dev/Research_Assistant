@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { listProjects, createProject } from "../../services/api.js";
+import { listProjects, createProject, detectDemoMode } from "../../services/api.js";
 import ProjectWorkspace from "./ProjectWorkspace.jsx";
 
 export default function ProjectsApp() {
@@ -9,6 +9,12 @@ export default function ProjectsApp() {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [error, setError] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  // Detect if the local .dat mock server is running
+  useEffect(() => {
+    detectDemoMode().then(setIsDemoMode);
+  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -24,6 +30,8 @@ export default function ProjectsApp() {
     (async () => {
       const rows = await refresh();
       setLoading(false);
+      // Auto-select the first project — in demo mode this is the pre-loaded
+      // .dat project so the workspace shows immediately with no user clicks.
       if (rows.length > 0 && !selectedId) setSelectedId(rows[0].id);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,13 +63,27 @@ export default function ProjectsApp() {
             <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-pine-600">
               Research Nexus
             </p>
-            <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-800">
-              DEMO .DAT
-            </span>
+            {isDemoMode ? (
+              <span
+                title="Connected to local fallback_demo.dat via mock API on :8000"
+                className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-800"
+              >
+                🟢 .DAT LIVE
+              </span>
+            ) : (
+              <span className="rounded-full bg-sky-100 border border-sky-300 px-2 py-0.5 font-mono text-[10px] font-semibold text-sky-800">
+                LIVE API
+              </span>
+            )}
           </div>
           <h1 className="font-display text-lg font-semibold leading-tight text-ink">
             Research Projects
           </h1>
+          {isDemoMode && (
+            <p className="mt-1 font-mono text-[10px] text-emerald-600">
+              Local demo data · localhost:8000
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleCreate} className="border-b border-line px-5 py-4">

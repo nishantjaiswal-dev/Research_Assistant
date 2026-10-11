@@ -3,7 +3,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import ChatPanel from "./components/ChatPanel.jsx";
 import SearchPanel from "./components/SearchPanel.jsx";
 import ProjectsApp from "./components/projects/ProjectsApp.jsx";
-import { listDocuments } from "./services/api.js";
+import { listDocuments, detectDemoMode } from "./services/api.js";
 
 const ACTIVE_STATUSES = new Set(["uploaded", "extracting", "chunking", "embedding"]);
 
@@ -13,7 +13,26 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // "connecting" while we wait for the backend, "ready" once health check passes
+  const [startupState, setStartupState] = useState("connecting");
   const pollRef = useRef(null);
+
+  // ── Auto-connect to local .dat demo on startup ─────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const isDemo = await detectDemoMode();
+      if (cancelled) return;
+      if (isDemo) {
+        // Automatically land on Research Projects for the richest demo experience
+        setMode("projects");
+      }
+      setStartupState("ready");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -26,12 +45,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (startupState !== "ready") return; // wait until backend is confirmed up
     (async () => {
       const docs = await refresh();
       setLoading(false);
       if (docs.length > 0) setSelectedId(docs[0].id);
     })();
-  }, [refresh]);
+  }, [refresh, startupState]);
 
   // Poll while any document is still processing, so the status track
   // updates live without the user refreshing the page.
@@ -58,6 +78,79 @@ export default function App() {
   }
 
   const selectedDocument = documents.find((d) => d.id === selectedId) ?? null;
+
+  // ── Startup connection splash ──────────────────────────────────────────────
+  if (startupState === "connecting") {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 24,
+          background: "var(--color-paper, #fafaf9)",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔬</div>
+          <p
+            style={{
+              fontFamily: "var(--font-display, serif)",
+              fontSize: "1.25rem",
+              fontWeight: 600,
+              color: "var(--color-ink, #1c1917)",
+              marginBottom: 8,
+            }}
+          >
+            Research Nexus
+          </p>
+          <p
+            style={{
+              fontFamily: "monospace",
+              fontSize: "0.7rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "#15803d",
+            }}
+          >
+            Connecting to local .dat demo…
+          </p>
+          <div style={{ width: 240, margin: "20px auto 0" }}>
+            <div
+              style={{
+                height: 3,
+                borderRadius: 9999,
+                background:
+                  "linear-gradient(90deg, #15803d 0%, #22c55e 50%, #15803d 100%)",
+                backgroundSize: "200% 100%",
+                animation: "rn-slide 1.4s linear infinite",
+              }}
+            />
+          </div>
+          <style>{`
+            @keyframes rn-slide {
+              0%   { background-position: 0%   50%; }
+              100% { background-position: 200% 50%; }
+            }
+          `}</style>
+        </div>
+        <p
+          style={{
+            maxWidth: 300,
+            textAlign: "center",
+            fontFamily: "var(--font-body, sans-serif)",
+            fontSize: "0.875rem",
+            color: "var(--color-muted, #78716c)",
+          }}
+        >
+          Waiting for the mock API server to start. This only takes a few seconds
+          on the first run.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col bg-paper">

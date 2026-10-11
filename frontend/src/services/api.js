@@ -1,5 +1,38 @@
 const BASE = "/api";
 
+// ── Demo-mode auto-connect helpers ──────────────────────────────────────────
+
+/**
+ * Poll /api/health until the backend is reachable or the timeout expires.
+ * Returns the health JSON on success, null on timeout.
+ */
+export async function waitForBackend(timeoutMs = 15000, intervalMs = 600) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(`${BASE}/health`);
+      if (res.ok) return await res.json();
+    } catch {
+      // backend not ready yet — keep waiting
+    }
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return null;
+}
+
+/**
+ * Returns true when the running backend is the local .dat mock server.
+ * Used to auto-switch the UI into demo / projects mode.
+ */
+export async function detectDemoMode() {
+  try {
+    const health = await waitForBackend(8000);
+    return !!health?.demo_mode;
+  } catch {
+    return false;
+  }
+}
+
 async function handle(response) {
   if (!response.ok) {
     let detail = `Request failed with status ${response.status}`;
