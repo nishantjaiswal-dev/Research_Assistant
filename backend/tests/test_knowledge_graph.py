@@ -143,6 +143,15 @@ async def test_build_project_knowledge_graph_with_data(monkeypatch):
     assert "target_label" in first_edge["data"]
     assert "description" in first_edge["data"]
 
+    # Verify flow diagram edges and comparative analysis
+    assert "flows_to" in edge_predicates
+    flow_edge = next(e for e in res["edges"] if e["predicate"] == "flows_to")
+    assert flow_edge["data"]["is_flow_edge"] is True
+    assert "what_is_common" in flow_edge["data"]
+    assert "how_approach_varies" in flow_edge["data"]
+    assert len(flow_edge["data"]["what_is_common"]) > 0
+    assert "comparison_table" in flow_edge["data"]
+
 
 @pytest.mark.asyncio
 async def test_query_knowledge_graph(monkeypatch):

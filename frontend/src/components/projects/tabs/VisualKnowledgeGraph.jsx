@@ -16,6 +16,8 @@ import {
   useNodesState,
   useEdgesState,
   MarkerType,
+  Handle,
+  Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { getProjectGraph, queryProjectGraph, analyzeProject } from "../../../services/api.js";
@@ -39,6 +41,8 @@ const NODE_STYLES = {
 };
 
 const EDGE_COLOURS = {
+  flows_to:       "#38bdf8",
+  compares_with:  "#f59e0b",
   written_by:     "#3b82f6",
   studies:        "#8b5cf6",
   discusses:      "#64748b",
@@ -48,11 +52,168 @@ const EDGE_COLOURS = {
   reports:        "#0ea5e9",
   has_limitation: "#ea580c",
   addresses:      "#a855f7",
-  related_to:     "#94a3b8",
+  related_to:     "#06b6d4",
   extends:        "#14b8a6",
 };
 
-// ─── Custom Node Renderer ─────────────────────────────────────────────────────
+// ─── Custom Paper Flow Node (Card for Research Flow Diagram) ──────────────────
+function PaperFlowNode({ data, selected }) {
+  const d = data || {};
+  return (
+    <div
+      style={{
+        background: "linear-gradient(145deg, #0d281e, #061711)",
+        border: `2px solid ${selected ? "#38bdf8" : "#16a34a"}`,
+        borderRadius: 12,
+        padding: "12px 14px",
+        width: 310,
+        boxShadow: selected
+          ? "0 0 0 4px #38bdf855, 0 12px 30px rgba(0,0,0,0.8)"
+          : "0 6px 20px rgba(0,0,0,0.5), 0 0 0 1px #16a34a33",
+        transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
+        cursor: "pointer",
+        position: "relative",
+        color: "#f1f5f9",
+      }}
+    >
+      {/* Horizontal Flow Handles */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="flow-in"
+        style={{ background: "#38bdf8", width: 10, height: 10, border: "2px solid #0f172a" }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="flow-out"
+        style={{ background: "#38bdf8", width: 10, height: 10, border: "2px solid #0f172a" }}
+      />
+      {/* Vertical Entity Handles */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        style={{ background: "#a855f7", width: 8, height: 8, border: "2px solid #0f172a" }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        style={{ background: "#10b981", width: 8, height: 8, border: "2px solid #0f172a" }}
+      />
+
+      {/* Stage Badge & Year */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: 8 }}>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "2px 8px",
+            borderRadius: 6,
+            background: "#0284c726",
+            border: "1px solid #38bdf840",
+            color: "#38bdf8",
+            fontSize: 10,
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: 0.5,
+            textTransform: "uppercase",
+          }}
+        >
+          {d.flow_stage || `Paper ${d.flow_index || ""}`}
+        </span>
+        <span
+          style={{
+            fontSize: 11,
+            fontFamily: "monospace",
+            color: "#94a3b8",
+            background: "#1e293b",
+            padding: "2px 6px",
+            borderRadius: 4,
+            fontWeight: 600,
+          }}
+        >
+          {d.publication_year || "2024"}
+        </span>
+      </div>
+
+      {/* Paper Title */}
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#f8fafc",
+          lineHeight: 1.35,
+          marginBottom: 4,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {d.title || d.label}
+      </div>
+
+      {/* Venue & Authors */}
+      <div
+        style={{
+          fontSize: 10.5,
+          color: "#94a3b8",
+          marginBottom: 8,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {d.authors?.length > 0 ? d.authors.slice(0, 2).join(", ") + (d.authors.length > 2 ? " et al." : "") : "Authors"}
+        {d.venue ? ` · ${d.venue}` : ""}
+      </div>
+
+      {/* Core Approach Box */}
+      {d.core_approach && (
+        <div
+          style={{
+            background: "#064e3b33",
+            border: "1px solid #05966940",
+            borderRadius: 6,
+            padding: "5px 8px",
+            marginBottom: 8,
+          }}
+        >
+          <div style={{ fontSize: 9, fontFamily: "monospace", textTransform: "uppercase", color: "#34d399", fontWeight: 700, marginBottom: 2 }}>
+            ⚙️ Approach
+          </div>
+          <div style={{ fontSize: 11, color: "#d1fae5", lineHeight: 1.3, fontWeight: 500 }}>
+            {d.core_approach}
+          </div>
+        </div>
+      )}
+
+      {/* Entities count badges */}
+      <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", borderTop: "1px solid #1e293b", paddingTop: 7 }}>
+        {d.models?.length > 0 && (
+          <span style={{ fontSize: 9.5, color: "#fda4af", background: "#4c051944", padding: "1px 6px", borderRadius: 4, border: "1px solid #f43f5e33" }}>
+            🤖 {d.models[0]}{d.models.length > 1 ? ` +${d.models.length - 1}` : ""}
+          </span>
+        )}
+        {d.datasets?.length > 0 && (
+          <span style={{ fontSize: 9.5, color: "#fde68a", background: "#451a0344", padding: "1px 6px", borderRadius: 4, border: "1px solid #f59e0b33" }}>
+            📊 {d.datasets[0]}{d.datasets.length > 1 ? ` +${d.datasets.length - 1}` : ""}
+          </span>
+        )}
+        {d.gaps?.length > 0 && (
+          <span style={{ fontSize: 9.5, color: "#fdba74", background: "#43140744", padding: "1px 6px", borderRadius: 4, border: "1px solid #ea580c33" }}>
+            ⚠️ {d.gaps.length} Gap{d.gaps.length === 1 ? "" : "s"}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Custom Research Entity Node Renderer ─────────────────────────────────────
 function ResearchNode({ data, selected }) {
   const style = NODE_STYLES[data.node_type] || NODE_STYLES.concept;
 
@@ -73,6 +234,11 @@ function ResearchNode({ data, selected }) {
         position: "relative",
       }}
     >
+      <Handle type="target" position={Position.Left} style={{ background: style.border }} />
+      <Handle type="source" position={Position.Right} style={{ background: style.border }} />
+      <Handle type="target" position={Position.Top} id="top" style={{ background: style.border }} />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: style.border }} />
+
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, marginBottom: 4 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ fontSize: 13 }}>{style.icon}</span>
@@ -134,7 +300,7 @@ function ResearchNode({ data, selected }) {
   );
 }
 
-const nodeTypes = { research: ResearchNode };
+const nodeTypes = { paperFlow: PaperFlowNode, research: ResearchNode };
 
 // ─── Inner Graph Canvas (Has access to useReactFlow) ───────────────────────────
 function GraphCanvas({
@@ -151,6 +317,7 @@ function GraphCanvas({
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  const [viewMode, setViewMode] = useState("flow"); // "flow" (Literature Flow Diagram) | "full" (Comprehensive Network)
   const [activeFilters, setActiveFilters] = useState(new Set(["all"]));
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedIds, setHighlightedIds] = useState(new Set());
@@ -160,6 +327,21 @@ function GraphCanvas({
   const [aiQuery, setAiQuery] = useState("");
   const [aiAnswer, setAiAnswer] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
+
+  // ── Compute Paper Flow Pipeline in Sequence ──────────────────────────────────
+  const paperFlowList = useMemo(() => {
+    if (!graphData?.nodes) return [];
+    return graphData.nodes
+      .filter((n) => n.type === "paper")
+      .sort((a, b) => {
+        const idxA = a.data?.flow_index ?? 999;
+        const idxB = b.data?.flow_index ?? 999;
+        if (idxA !== idxB) return idxA - idxB;
+        const yA = Number(a.data?.publication_year) || 2024;
+        const yB = Number(b.data?.publication_year) || 2024;
+        return yA - yB;
+      });
+  }, [graphData]);
 
   // ── Load graph data ──────────────────────────────────────────────────────────
   const loadGraph = useCallback(async () => {
@@ -203,15 +385,19 @@ function GraphCanvas({
 
   // ── Convert graph data to React Flow nodes/edges ─────────────────────────────
   const buildFlowElements = useCallback(
-    (data, filters, search, highlighted) => {
+    (data, filters, search, highlighted, currentViewMode) => {
       if (!data?.nodes?.length) return { rfNodes: [], rfEdges: [] };
 
       const showAll = filters.has("all");
       const searchLow = search.toLowerCase().trim();
 
+      // In Flow Mode: Focus on papers and directly related entities (models, datasets, methods, gaps, findings)
+      const allowedFlowTypes = new Set(["paper", "model", "dataset", "method", "gap", "finding"]);
+
       const visibleNodeIds = new Set(
         data.nodes
           .filter((n) => {
+            if (currentViewMode === "flow" && !allowedFlowTypes.has(n.type)) return false;
             if (!showAll && !filters.has(n.type)) return false;
             if (searchLow && !n.label.toLowerCase().includes(searchLow)) return false;
             return true;
@@ -224,15 +410,17 @@ function GraphCanvas({
         .map((n) => {
           const isHighlighted = highlighted.size > 0 && highlighted.has(n.id);
           const isDimmed = highlighted.size > 0 && !highlighted.has(n.id);
+          const isPaper = n.type === "paper";
+
           return {
             id: n.id,
-            type: "research",
+            type: isPaper ? "paperFlow" : "research",
             position: n.position,
             data: { ...n.data, node_type: n.type, label: n.label },
             style: {
-              opacity: isDimmed ? 0.22 : 1,
-              transform: isHighlighted ? "scale(1.06)" : "scale(1)",
-              zIndex: isHighlighted ? 100 : 1,
+              opacity: isDimmed ? 0.2 : 1,
+              transform: isHighlighted ? "scale(1.05)" : "scale(1)",
+              zIndex: isHighlighted ? 100 : (isPaper ? 50 : 1),
             },
           };
         });
@@ -241,25 +429,45 @@ function GraphCanvas({
         .filter((e) => visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target))
         .map((e) => {
           const isConnected = highlighted.has(e.source) || highlighted.has(e.target);
+          const isFlow = e.predicate === "flows_to" || e.data?.is_flow_edge;
+          const isComparative = e.predicate === "compares_with" || e.data?.is_comparative_edge;
+
+          const strokeColor = EDGE_COLOURS[e.predicate] || "#64748b";
+          const strokeWidth = isConnected ? 3.5 : (isFlow ? 3 : (isComparative ? 2 : 1.2));
+          const markerSize = isFlow ? 12 : (isComparative ? 10 : 8);
+
           return {
             id: e.id,
             source: e.source,
             target: e.target,
             label: e.label,
-            labelStyle: { fontSize: 9, fill: "#94a3b8", fontFamily: "monospace" },
-            labelBgStyle: { fill: "#0f172a", fillOpacity: 0.8 },
+            labelStyle: {
+              fontSize: isFlow ? 10 : 9,
+              fill: isFlow ? "#e0f2fe" : (isComparative ? "#fef3c7" : "#94a3b8"),
+              fontFamily: "monospace",
+              fontWeight: isFlow ? 700 : 500,
+            },
+            labelBgStyle: {
+              fill: isFlow ? "#032b43" : (isComparative ? "#2d1804" : "#0f172a"),
+              fillOpacity: 0.92,
+              stroke: isFlow ? "#38bdf888" : (isComparative ? "#f59e0b88" : "#334155"),
+              strokeWidth: 1,
+              rx: 4,
+              ry: 4,
+            },
             style: {
-              stroke: EDGE_COLOURS[e.predicate] || "#64748b",
-              strokeWidth: isConnected ? 2.5 : 1,
-              opacity: highlighted.size > 0 && !isConnected ? 0.12 : 0.75,
+              stroke: strokeColor,
+              strokeWidth: strokeWidth,
+              strokeDasharray: isComparative ? "5,5" : undefined,
+              opacity: highlighted.size > 0 && !isConnected ? 0.15 : 0.85,
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              width: 8,
-              height: 8,
-              color: EDGE_COLOURS[e.predicate] || "#64748b",
+              width: markerSize,
+              height: markerSize,
+              color: strokeColor,
             },
-            animated: isConnected,
+            animated: isConnected || isFlow,
             data: e.data,
           };
         });
@@ -275,11 +483,12 @@ function GraphCanvas({
       graphData,
       activeFilters,
       searchQuery,
-      highlightedIds
+      highlightedIds,
+      viewMode
     );
     setNodes(rfNodes);
     setEdges(rfEdges);
-  }, [graphData, activeFilters, searchQuery, highlightedIds, buildFlowElements, setNodes, setEdges]);
+  }, [graphData, activeFilters, searchQuery, highlightedIds, viewMode, buildFlowElements, setNodes, setEdges]);
 
   // ── Filter toggle ────────────────────────────────────────────────────────────
   function toggleFilter(type) {
@@ -542,8 +751,61 @@ function GraphCanvas({
           padding: "8px 16px",
         }}
       >
-        {/* Left: Counts and fit screen */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        {/* Left: View Mode Switcher & Stats */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          {/* View Mode Toggle */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "#090d16",
+              padding: 2,
+              borderRadius: 6,
+              border: "1px solid #1e293b",
+            }}
+          >
+            <button
+              onClick={() => setViewMode("flow")}
+              style={{
+                padding: "4px 10px",
+                fontSize: 11,
+                fontFamily: "monospace",
+                fontWeight: viewMode === "flow" ? 700 : 500,
+                background: viewMode === "flow" ? "#0284c7" : "transparent",
+                color: viewMode === "flow" ? "#ffffff" : "#94a3b8",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+              title="View literature as a directional evolutionary flow diagram"
+            >
+              ⚡ Research Flow Diagram
+            </button>
+            <button
+              onClick={() => setViewMode("full")}
+              style={{
+                padding: "4px 10px",
+                fontSize: 11,
+                fontFamily: "monospace",
+                fontWeight: viewMode === "full" ? 700 : 500,
+                background: viewMode === "full" ? "#0284c7" : "transparent",
+                color: viewMode === "full" ? "#ffffff" : "#94a3b8",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+              title="View comprehensive multi-entity network"
+            >
+              🕸️ Full Entity Network
+            </button>
+          </div>
+
           <span style={{ fontFamily: "monospace", fontSize: 11, color: "#94a3b8" }}>
             <span style={{ color: "#38bdf8", fontWeight: 700 }}>{stats.total_nodes ?? 0}</span> nodes
             {" · "}
@@ -745,6 +1007,110 @@ function GraphCanvas({
         })}
       </div>
 
+      {/* ── Literature Flow Progression Ribbon ──────────────────────────────── */}
+      {paperFlowList.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            overflowX: "auto",
+            padding: "6px 16px",
+            background: "#08101e",
+            borderBottom: "1px solid #1e293b",
+            scrollbarWidth: "none",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0, marginRight: 4 }}>
+            <span style={{ fontSize: 10, color: "#38bdf8", fontWeight: 700, fontFamily: "monospace", letterSpacing: 0.5 }}>
+              ⚡ RESEARCH FLOW:
+            </span>
+            <span style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>({paperFlowList.length} Stages)</span>
+          </div>
+
+          {paperFlowList.map((paper, idx) => {
+            const isSelected = selectedNode?.id === paper.id;
+            const isFocused = highlightedIds.has(paper.id);
+            const stageLabel = paper.data?.flow_stage
+              ? paper.data.flow_stage.split(":")[0]
+              : `Stage ${paper.data?.flow_index || idx + 1}`;
+
+            return (
+              <div key={paper.id} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <button
+                  onClick={() => {
+                    setSelectedNode(paper);
+                    setSelectedEdge(null);
+                    const connected = new Set([paper.id]);
+                    if (graphData?.edges) {
+                      graphData.edges.forEach((e) => {
+                        if (e.source === paper.id) connected.add(e.target);
+                        if (e.target === paper.id) connected.add(e.source);
+                      });
+                    }
+                    setHighlightedIds(connected);
+                    if (paper.position) {
+                      reactFlow.setCenter(paper.position.x + 155, paper.position.y + 70, {
+                        zoom: 1.15,
+                        duration: 450,
+                      });
+                    }
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: isSelected ? "#0369a1" : (isFocused ? "#0c4a6e" : "#0f172a"),
+                    border: `1px solid ${isSelected ? "#38bdf8" : (isFocused ? "#0284c7" : "#334155")}`,
+                    borderRadius: 6,
+                    padding: "3px 8px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    color: isSelected ? "#ffffff" : "#e2e8f0",
+                    textAlign: "left",
+                  }}
+                  title={paper.data?.title || paper.label}
+                >
+                  <span
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: 9.5,
+                      fontWeight: 700,
+                      color: isSelected ? "#ffffff" : "#38bdf8",
+                      background: isSelected ? "#0284c7" : "#0284c726",
+                      borderRadius: 4,
+                      padding: "1px 5px",
+                      border: "1px solid #38bdf833",
+                    }}
+                  >
+                    {stageLabel}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      maxWidth: 155,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {paper.data?.title ? (paper.data.title.split(":")[0] || paper.data.title) : paper.label}
+                  </span>
+                  <span style={{ fontSize: 10, fontFamily: "monospace", color: "#94a3b8" }}>
+                    {paper.data?.publication_year || ""}
+                  </span>
+                </button>
+
+                {idx < paperFlowList.length - 1 && (
+                  <span style={{ color: "#38bdf8", fontSize: 11, fontWeight: 700, opacity: 0.8 }}>➔</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* ── Main Canvas & Inspector Area ───────────────────────────────────── */}
       <div style={{ display: "flex", minHeight: 0, flex: 1 }}>
         {/* React Flow Canvas */}
@@ -816,10 +1182,11 @@ function GraphCanvas({
         </div>
 
         {/* ── Right Side Panel: Inspector & AI ─────────────────────────────── */}
+        {/* ── Right Side Panel: Inspector & AI ─────────────────────────────── */}
         <div
           style={{
             display: "flex",
-            width: 320,
+            width: 360,
             flexShrink: 0,
             flexDirection: "column",
             borderLeft: "1px solid #1e293b",
@@ -830,7 +1197,7 @@ function GraphCanvas({
           {/* Details Section */}
           <div
             style={{
-              maxHeight: "58%",
+              maxHeight: "62%",
               overflowY: "auto",
               borderBottom: "1px solid #1e293b",
             }}
@@ -840,11 +1207,27 @@ function GraphCanvas({
                 edge={selectedEdge}
                 onSelectSource={() => {
                   const s = graphData?.nodes?.find((n) => n.id === selectedEdge.source);
-                  if (s) handleNodeClick(null, s);
+                  if (s) {
+                    handleNodeClick(null, s);
+                    if (s.position) {
+                      reactFlow.setCenter(s.position.x + 155, s.position.y + 70, {
+                        zoom: 1.15,
+                        duration: 450,
+                      });
+                    }
+                  }
                 }}
                 onSelectTarget={() => {
                   const t = graphData?.nodes?.find((n) => n.id === selectedEdge.target);
-                  if (t) handleNodeClick(null, t);
+                  if (t) {
+                    handleNodeClick(null, t);
+                    if (t.position) {
+                      reactFlow.setCenter(t.position.x + 155, t.position.y + 70, {
+                        zoom: 1.15,
+                        duration: 450,
+                      });
+                    }
+                  }
                 }}
                 onClear={clearSelection}
               />
@@ -852,6 +1235,16 @@ function GraphCanvas({
               <NodeDetailPanel
                 node={selectedNode}
                 connectedPapers={connectedPapers}
+                paperFlowList={paperFlowList}
+                onSelectNode={(node) => {
+                  handleNodeClick(null, node);
+                  if (node?.position) {
+                    reactFlow.setCenter(node.position.x + 155, node.position.y + 70, {
+                      zoom: 1.15,
+                      duration: 450,
+                    });
+                  }
+                }}
                 onNavigate={onNavigate}
                 onSelectRelated={(relatedLabel) => {
                   const match = graphData?.nodes?.find(
@@ -861,13 +1254,13 @@ function GraphCanvas({
                 }}
               />
             ) : (
-              <div style={{ padding: "20px 16px", textAlign: "center" }}>
-                <p style={{ fontSize: 28, marginBottom: 6 }}>🔍</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>
-                  Knowledge Graph Explorer
+              <div style={{ padding: "24px 16px", textAlign: "center" }}>
+                <p style={{ fontSize: 32, marginBottom: 8 }}>⚡</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#cbd5e1" }}>
+                  Research Flow Explorer
                 </p>
-                <p style={{ fontSize: 11, color: "#64748b", marginTop: 4, lineHeight: 1.4 }}>
-                  Click any node or relationship edge in the graph to inspect detailed scientific evidence.
+                <p style={{ fontSize: 11, color: "#64748b", marginTop: 4, lineHeight: 1.45 }}>
+                  Click any paper node or flow arrow to inspect how papers connect, what they share in common, and how their approaches vary.
                 </p>
               </div>
             )}
@@ -889,7 +1282,7 @@ function GraphCanvas({
                 ✨ AI Graph Analyst
               </p>
               <p style={{ marginTop: 2, fontSize: 11, color: "#64748b" }}>
-                Ask questions grounded in graph topology
+                Ask questions grounded in graph topology & methodology
               </p>
             </div>
 
@@ -943,10 +1336,10 @@ function GraphCanvas({
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                   {[
-                    "What datasets are commonly used in this research?",
-                    "Which models appear across these papers?",
+                    "How does the research approach evolve across these papers?",
+                    "What is common between all papers in this project?",
+                    "How do their methodologies and datasets vary?",
                     "What recurring research gaps connect these papers?",
-                    "How are the methodologies related across papers?",
                   ].map((q) => (
                     <button
                       key={q}
@@ -988,7 +1381,7 @@ function GraphCanvas({
                     handleAiQuery();
                   }
                 }}
-                placeholder="Ask about research models, datasets, gaps…"
+                placeholder="Ask about research progression, models, gaps…"
                 rows={2}
                 style={{
                   width: "100%",
@@ -1030,20 +1423,262 @@ function GraphCanvas({
   );
 }
 
-// ─── Edge Detail Inspector ────────────────────────────────────────────────────
+// ─── Edge Detail Inspector (Flow, Comparative, & Relationship) ─────────────────
 function EdgeDetailPanel({ edge, onSelectSource, onSelectTarget, onClear }) {
   const d = edge.data || {};
+  const isFlow = edge.predicate === "flows_to" || d.is_flow_edge;
+  const isComparative = edge.predicate === "compares_with" || d.is_comparative_edge;
   const sLabel = d.source_label || edge.source;
   const tLabel = d.target_label || edge.target;
   const predicate = d.predicate || edge.label || "connected to";
 
+  // Dedicated Literature Flow or Comparative Analysis Panel
+  if (isFlow || isComparative) {
+    return (
+      <div style={{ padding: "14px 16px" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 14 }}>{isFlow ? "⚡" : "⚖️"}</span>
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                color: isFlow ? "#38bdf8" : "#f59e0b",
+                fontWeight: 700,
+              }}
+            >
+              {isFlow ? "Literature Flow & Evolution" : "Cross-Paper Comparative Analysis"}
+            </span>
+          </div>
+          <button
+            onClick={onClear}
+            style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 15 }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Step Transition Card */}
+        <div
+          style={{
+            background: isFlow
+              ? "linear-gradient(135deg, #032b43, #0b1f33)"
+              : "linear-gradient(135deg, #2d1804, #1a0f02)",
+            border: `1px solid ${isFlow ? "#0284c755" : "#f59e0b55"}`,
+            borderRadius: 8,
+            padding: "10px 12px",
+            marginBottom: 12,
+          }}
+        >
+          {d.flow_step && (
+            <div
+              style={{
+                display: "inline-block",
+                padding: "2px 6px",
+                borderRadius: 4,
+                background: isFlow ? "#0284c733" : "#f59e0b33",
+                color: isFlow ? "#38bdf8" : "#fbbf24",
+                fontFamily: "monospace",
+                fontSize: 9.5,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              {d.flow_step}
+            </div>
+          )}
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc", lineHeight: 1.35, marginBottom: 4 }}>
+            {sLabel}
+          </div>
+          <div style={{ fontSize: 11, color: isFlow ? "#38bdf8" : "#f59e0b", fontFamily: "monospace", margin: "3px 0", fontWeight: 700 }}>
+            ➔ {isFlow ? "advances to" : "compares with"} ➔
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc", lineHeight: 1.35 }}>
+            {tLabel}
+          </div>
+        </div>
+
+        {/* Narrative Synthesis */}
+        {d.flow_narrative && (
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontFamily: "monospace", fontSize: 9.5, textTransform: "uppercase", color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>
+              📖 Evolutionary Narrative
+            </p>
+            <p
+              style={{
+                fontSize: 11.5,
+                color: "#cbd5e1",
+                lineHeight: 1.55,
+                background: "#090d16",
+                padding: "8px 10px",
+                borderRadius: 6,
+                border: "1px solid #1e293b",
+              }}
+            >
+              {d.flow_narrative}
+            </p>
+          </div>
+        )}
+
+        {/* What Is Common Between Them */}
+        {d.what_is_common && d.what_is_common.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
+              <span style={{ fontSize: 12 }}>🤝</span>
+              <span style={{ fontFamily: "monospace", fontSize: 9.5, textTransform: "uppercase", color: "#34d399", fontWeight: 700 }}>
+                What Is Common Between Them ({d.what_is_common.length})
+              </span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {d.what_is_common.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "#064e3b33",
+                    border: "1px solid #05966955",
+                    color: "#a7f3d0",
+                    fontSize: 10.5,
+                    padding: "3px 8px",
+                    borderRadius: 5,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  ✓ {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* How Their Approaches Vary */}
+        {d.how_approach_varies && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
+              <span style={{ fontSize: 12 }}>⚖️</span>
+              <span style={{ fontFamily: "monospace", fontSize: 9.5, textTransform: "uppercase", color: "#f59e0b", fontWeight: 700 }}>
+                How Their Approaches Vary
+              </span>
+            </div>
+            <p
+              style={{
+                fontSize: 11.5,
+                color: "#fef3c7",
+                lineHeight: 1.55,
+                background: "#1c1404",
+                padding: "8px 10px",
+                borderRadius: 6,
+                border: "1px solid #78350f55",
+              }}
+            >
+              {d.how_approach_varies}
+            </p>
+          </div>
+        )}
+
+        {/* Methodological Contrast Matrix */}
+        {d.comparison_table && (
+          <div style={{ marginBottom: 14 }}>
+            <p style={{ fontFamily: "monospace", fontSize: 9.5, textTransform: "uppercase", color: "#94a3b8", fontWeight: 700, marginBottom: 6 }}>
+              📊 Methodological Contrast Matrix
+            </p>
+            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 6, overflow: "hidden", fontSize: 10.5 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", background: "#1e293b", padding: "6px 8px", fontWeight: 700, color: "#f1f5f9" }}>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Source Stage</span>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Target Stage</span>
+              </div>
+              {d.comparison_table.source_paradigm && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", padding: "6px 8px", borderBottom: "1px solid #1e293b44" }}>
+                  <div style={{ color: "#cbd5e1" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Paradigm</div>
+                    {d.comparison_table.source_paradigm}
+                  </div>
+                  <div style={{ color: "#38bdf8" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Paradigm</div>
+                    {d.comparison_table.target_paradigm || "—"}
+                  </div>
+                </div>
+              )}
+              {d.comparison_table.source_scale && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", padding: "6px 8px", borderBottom: "1px solid #1e293b44", background: "#0b1222" }}>
+                  <div style={{ color: "#cbd5e1" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Scale / Arch</div>
+                    {d.comparison_table.source_scale}
+                  </div>
+                  <div style={{ color: "#38bdf8" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Scale / Arch</div>
+                    {d.comparison_table.target_scale || "—"}
+                  </div>
+                </div>
+              )}
+              {d.comparison_table.evaluation_focus && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", padding: "6px 8px" }}>
+                  <div style={{ color: "#cbd5e1" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Evaluation</div>
+                    {d.comparison_table.evaluation_focus}
+                  </div>
+                  <div style={{ color: "#38bdf8" }}>
+                    <div style={{ fontSize: 9, color: "#64748b", textTransform: "uppercase" }}>Evaluation</div>
+                    {d.comparison_table.evaluation_focus_target || "—"}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Buttons to navigate to either paper */}
+        <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
+          <button
+            onClick={onSelectSource}
+            style={{
+              flex: 1,
+              borderRadius: 6,
+              border: "1px solid #334155",
+              background: "#1e293b",
+              color: "#cbd5e1",
+              padding: "6px 8px",
+              fontSize: 10,
+              fontFamily: "monospace",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            🔍 Source Paper
+          </button>
+          <button
+            onClick={onSelectTarget}
+            style={{
+              flex: 1,
+              borderRadius: 6,
+              border: "1px solid #0284c7",
+              background: "#0369a1",
+              color: "#ffffff",
+              padding: "6px 8px",
+              fontSize: 10,
+              fontFamily: "monospace",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            Target Paper ➔
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard entity relationship edge
   return (
-    <div style={{ padding: "12px 14px" }}>
+    <div style={{ padding: "14px 16px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <span
           style={{
             fontFamily: "monospace",
-            fontSize: 9,
+            fontSize: 9.5,
             textTransform: "uppercase",
             letterSpacing: 1,
             color: "#38bdf8",
@@ -1156,42 +1791,163 @@ function EdgeDetailPanel({ edge, onSelectSource, onSelectTarget, onClear }) {
 }
 
 // ─── Node Detail Inspector ────────────────────────────────────────────────────
-function NodeDetailPanel({ node, connectedPapers, onNavigate, onSelectRelated }) {
+function NodeDetailPanel({ node, connectedPapers, paperFlowList, onSelectNode, onNavigate, onSelectRelated }) {
   const [expandAbstract, setExpandAbstract] = useState(false);
   const style = NODE_STYLES[node.data.node_type] || NODE_STYLES.concept;
   const d = node.data;
+  const isPaper = d.node_type === "paper";
+
+  // Flow navigation calculation
+  const flowIndexInList = isPaper && paperFlowList
+    ? paperFlowList.findIndex((p) => p.id === node.id)
+    : -1;
+  const prevPaper = flowIndexInList > 0 ? paperFlowList[flowIndexInList - 1] : null;
+  const nextPaper =
+    flowIndexInList >= 0 && flowIndexInList < (paperFlowList?.length - 1)
+      ? paperFlowList[flowIndexInList + 1]
+      : null;
 
   return (
-    <div style={{ padding: "12px 14px" }}>
+    <div style={{ padding: "14px 16px" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 20 }}>{style.icon}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", lineHeight: 1.3, wordBreak: "break-word" }}>
-            {d.label}
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", lineHeight: 1.35, wordBreak: "break-word" }}>
+            {d.title || d.label}
           </p>
-          <span
-            style={{
-              display: "inline-block",
-              marginTop: 4,
-              borderRadius: 4,
-              padding: "1px 6px",
-              fontFamily: "monospace",
-              fontSize: 9,
-              textTransform: "uppercase",
-              background: style.bg,
-              color: style.text,
-              border: `1px solid ${style.border}`,
-            }}
-          >
-            {style.label || d.node_type}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4, flexWrap: "wrap" }}>
+            <span
+              style={{
+                display: "inline-block",
+                borderRadius: 4,
+                padding: "1px 6px",
+                fontFamily: "monospace",
+                fontSize: 9,
+                textTransform: "uppercase",
+                background: style.bg,
+                color: style.text,
+                border: `1px solid ${style.border}`,
+              }}
+            >
+              {style.label || d.node_type}
+            </span>
+            {d.flow_stage && (
+              <span
+                style={{
+                  display: "inline-block",
+                  borderRadius: 4,
+                  padding: "1px 6px",
+                  fontFamily: "monospace",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  background: "#0284c726",
+                  color: "#38bdf8",
+                  border: "1px solid #38bdf840",
+                }}
+              >
+                {d.flow_stage}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
+      {/* Sequential Literature Flow Step Navigation */}
+      {isPaper && (prevPaper || nextPaper) && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 6,
+            padding: "6px 8px",
+            background: "#08101e",
+            borderRadius: 6,
+            border: "1px solid #1e293b",
+            marginBottom: 10,
+          }}
+        >
+          {prevPaper ? (
+            <button
+              onClick={() => onSelectNode?.(prevPaper)}
+              style={{
+                background: "#1e293b",
+                border: "1px solid #334155",
+                borderRadius: 4,
+                color: "#cbd5e1",
+                fontSize: 10,
+                fontFamily: "monospace",
+                padding: "3px 6px",
+                cursor: "pointer",
+                maxWidth: "46%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={prevPaper.data?.title || prevPaper.label}
+            >
+              ⬅ Prev Stage
+            </button>
+          ) : (
+            <span style={{ fontSize: 9.5, color: "#64748b", fontFamily: "monospace" }}>Start of Flow</span>
+          )}
+
+          <span style={{ fontSize: 9.5, color: "#38bdf8", fontFamily: "monospace", fontWeight: 700 }}>
+            {flowIndexInList + 1} / {paperFlowList?.length || 1}
+          </span>
+
+          {nextPaper ? (
+            <button
+              onClick={() => onSelectNode?.(nextPaper)}
+              style={{
+                background: "#0369a1",
+                border: "1px solid #0284c7",
+                borderRadius: 4,
+                color: "#ffffff",
+                fontSize: 10,
+                fontFamily: "monospace",
+                padding: "3px 6px",
+                cursor: "pointer",
+                maxWidth: "46%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={nextPaper.data?.title || nextPaper.label}
+            >
+              Next Stage ➔
+            </button>
+          ) : (
+            <span style={{ fontSize: 9.5, color: "#64748b", fontFamily: "monospace" }}>Flow Frontier</span>
+          )}
+        </div>
+      )}
+
+      {/* Core Approach Box */}
+      {isPaper && d.core_approach && (
+        <div
+          style={{
+            background: "#064e3b2e",
+            border: "1px solid #05966940",
+            borderRadius: 6,
+            padding: "8px 10px",
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ fontSize: 9.5, fontFamily: "monospace", textTransform: "uppercase", color: "#34d399", fontWeight: 700, marginBottom: 3 }}>
+            ⚙️ Core Scientific Approach
+          </div>
+          <div style={{ fontSize: 11.5, color: "#d1fae5", lineHeight: 1.45 }}>
+            {d.core_approach}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Paper Node Specifics */}
-        {d.node_type === "paper" && (
+        {isPaper && (
           <>
             {d.authors?.length > 0 && (
               <InfoRow label="Authors" value={d.authors.slice(0, 4).join(", ")} />

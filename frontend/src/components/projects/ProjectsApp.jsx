@@ -51,9 +51,14 @@ export default function ProjectsApp() {
     <div className="flex h-full w-full">
       <aside className="flex h-full w-72 shrink-0 flex-col border-r border-line bg-paper">
         <div className="border-b border-line px-5 py-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-pine-600">
-            Research Nexus
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-pine-600">
+              Research Nexus
+            </p>
+            <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-800">
+              DEMO .DAT
+            </span>
+          </div>
           <h1 className="font-display text-lg font-semibold leading-tight text-ink">
             Research Projects
           </h1>

@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "demo": "vite",
+    "demo:full": "python ../run_demo.py",
     "build": "vite build",
     "preview": "vite preview"
   },

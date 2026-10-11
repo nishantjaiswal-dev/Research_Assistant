@@ -1109,50 +1109,12 @@ FALLBACK_DATA = {
             }
         },
         "nodes": [
-            # Paper Nodes (Fully populated with metadata and extracted scientific entities)
-            {
-                "id": "n-paper-001",
-                "type": "paper",
-                "label": "GPT-4 Clinical Notes (2024)",
-                "position": {"x": 100, "y": 80},
-                "data": {
-                    "document_id": DOC1_ID,
-                    "title": "GPT-4 for Automated Clinical Note Generation: A Controlled Trial",
-                    "authors": ["Sarah Chen", "Marcus Aurelius Vance", "Priya Nair", "Robert E. Taylor"],
-                    "publication_year": 2024,
-                    "venue": "JMIR",
-                    "doi": "10.2196/48201",
-                    "abstract": "Physicians randomized to GPT-4 note drafting spent 48% less time documenting per encounter while maintaining equivalent clinical completeness scores (4.6/5.0).",
-                    "methods": ["Randomized Controlled Trial", "Prompt Engineering"],
-                    "models": ["GPT-4"],
-                    "datasets": ["Ambulatory Encounters"],
-                    "metrics": ["Documentation Time", "Completeness Score", "Hallucination Rate"]
-                }
-            },
-            {
-                "id": "n-paper-002",
-                "type": "paper",
-                "label": "Med-PaLM 2 (2023)",
-                "position": {"x": 420, "y": 80},
-                "data": {
-                    "document_id": DOC2_ID,
-                    "title": "Med-PaLM 2: Towards Clinician-Level Medical Question Answering",
-                    "authors": ["Karan Singhal", "Tao Tu", "Juraj Gottweis", "Rory Sayres", "Vivek Natarajan"],
-                    "publication_year": 2023,
-                    "venue": "Nature Medicine",
-                    "doi": "10.1038/s41591-023-02422-5",
-                    "abstract": "Med-PaLM 2 achieved 86.5% accuracy on USMLE MedQA questions and 92.9% clinical consensus alignment evaluated by expert physicians.",
-                    "methods": ["Instruction Tuning", "Chain-of-Thought"],
-                    "models": ["Med-PaLM 2", "PaLM-2 540B"],
-                    "datasets": ["MedQA (USMLE)", "PubMedQA"],
-                    "metrics": ["USMLE Accuracy", "Consensus Score"]
-                }
-            },
+            # Paper Nodes (Organized in logical Research Flow Pipeline)
             {
                 "id": "n-paper-003",
                 "type": "paper",
                 "label": "BioGPT (2023)",
-                "position": {"x": 740, "y": 80},
+                "position": {"x": 80, "y": 240},
                 "data": {
                     "document_id": DOC3_ID,
                     "title": "BioGPT: Generative Pre-trained Transformer for Biomedical Text Generation and Mining",
@@ -1160,6 +1122,9 @@ FALLBACK_DATA = {
                     "publication_year": 2023,
                     "venue": "Briefings in Bioinformatics",
                     "doi": "10.1093/bib/bbac409",
+                    "flow_index": 1,
+                    "flow_stage": "Stage 1: Biomedical Pre-training Foundation",
+                    "core_approach": "Pre-training from Scratch on 15M PubMed Abstracts",
                     "abstract": "Pre-trained exclusively on 15M PubMed abstracts, BioGPT achieves 81.0% accuracy on PubMedQA and state-of-the-art relation extraction.",
                     "methods": ["Pre-training from Scratch", "BPE Tokenization"],
                     "models": ["BioGPT"],
@@ -1168,10 +1133,54 @@ FALLBACK_DATA = {
                 }
             },
             {
+                "id": "n-paper-002",
+                "type": "paper",
+                "label": "Med-PaLM 2 (2023)",
+                "position": {"x": 520, "y": 240},
+                "data": {
+                    "document_id": DOC2_ID,
+                    "title": "Med-PaLM 2: Towards Clinician-Level Medical Question Answering",
+                    "authors": ["Karan Singhal", "Tao Tu", "Juraj Gottweis", "Rory Sayres", "Vivek Natarajan"],
+                    "publication_year": 2023,
+                    "venue": "Nature Medicine",
+                    "doi": "10.1038/s41591-023-02422-5",
+                    "flow_index": 2,
+                    "flow_stage": "Stage 2: Clinical Instruction Tuning & Reasoning",
+                    "core_approach": "Medical Instruction Tuning & Physician Chain-of-Thought",
+                    "abstract": "Med-PaLM 2 achieved 86.5% accuracy on USMLE MedQA questions and 92.9% clinical consensus alignment evaluated by expert physicians.",
+                    "methods": ["Instruction Tuning", "Chain-of-Thought"],
+                    "models": ["Med-PaLM 2", "PaLM-2 540B"],
+                    "datasets": ["MedQA (USMLE)", "PubMedQA"],
+                    "metrics": ["USMLE Accuracy", "Consensus Score"]
+                }
+            },
+            {
+                "id": "n-paper-001",
+                "type": "paper",
+                "label": "GPT-4 Clinical Notes (2024)",
+                "position": {"x": 960, "y": 240},
+                "data": {
+                    "document_id": DOC1_ID,
+                    "title": "GPT-4 for Automated Clinical Note Generation: A Controlled Trial",
+                    "authors": ["Sarah Chen", "Marcus Aurelius Vance", "Priya Nair", "Robert E. Taylor"],
+                    "publication_year": 2024,
+                    "venue": "JMIR",
+                    "doi": "10.2196/48201",
+                    "flow_index": 3,
+                    "flow_stage": "Stage 3: Ambulatory Clinical Deployment Trial",
+                    "core_approach": "Prospective Randomized Controlled Trial in Ambulatory EHR",
+                    "abstract": "Physicians randomized to GPT-4 note drafting spent 48% less time documenting per encounter while maintaining equivalent clinical completeness scores (4.6/5.0).",
+                    "methods": ["Randomized Controlled Trial", "Prompt Engineering"],
+                    "models": ["GPT-4"],
+                    "datasets": ["Ambulatory Encounters"],
+                    "metrics": ["Documentation Time", "Completeness Score", "Hallucination Rate"]
+                }
+            },
+            {
                 "id": "n-paper-004",
                 "type": "paper",
                 "label": "Hallucination Survey (2024)",
-                "position": {"x": 100, "y": 380},
+                "position": {"x": 1400, "y": 240},
                 "data": {
                     "document_id": DOC4_ID,
                     "title": "Hallucination in Large Language Models for Healthcare: A Systematic Survey",
@@ -1179,6 +1188,9 @@ FALLBACK_DATA = {
                     "publication_year": 2024,
                     "venue": "Lancet Digital Health",
                     "doi": "10.1016/S2589-7500(24)00088-2",
+                    "flow_index": 4,
+                    "flow_stage": "Stage 4: Critical Auditing & RAG Safety Guardrails",
+                    "core_approach": "Systematic Meta-Analysis & Retrieval-Augmented Verification",
                     "abstract": "Survey of 78 clinical trials showing that retrieval-augmented generation reduces factual hallucination rates from 14.2% down to 2.8%.",
                     "methods": ["Systematic Survey", "RAG Benchmarking"],
                     "models": ["GPT-4", "Llama 2 70B", "Med-PaLM 2"],
@@ -1190,7 +1202,7 @@ FALLBACK_DATA = {
                 "id": "n-paper-005",
                 "type": "paper",
                 "label": "Patient Comm LLM (2024)",
-                "position": {"x": 420, "y": 380},
+                "position": {"x": 1840, "y": 240},
                 "data": {
                     "document_id": DOC5_ID,
                     "title": "Improving Patient-Doctor Communication with Empathetic Large Language Models",
@@ -1198,6 +1210,9 @@ FALLBACK_DATA = {
                     "publication_year": 2024,
                     "venue": "JAMA Network Open",
                     "doi": "10.1001/jamanetworkopen.2024.11294",
+                    "flow_index": 5,
+                    "flow_stage": "Stage 5: Patient-Facing Translation & Alignment",
+                    "core_approach": "Double-Blind Human Evaluation of Empathy and Clarity",
                     "abstract": "LLM drafted portal responses scored significantly higher for empathy (4.1 vs 3.2/5.0) and clarity while reducing physician draft time by 62%.",
                     "methods": ["Double-Blind Trial", "Prompt Engineering"],
                     "models": ["GPT-4"],
@@ -1208,32 +1223,10 @@ FALLBACK_DATA = {
 
             # Model Nodes
             {
-                "id": "n-mod-gpt4",
-                "type": "model",
-                "label": "GPT-4",
-                "position": {"x": 260, "y": 230},
-                "data": {
-                    "paper_count": 3,
-                    "associated_datasets": ["Ambulatory Encounters", "Patient Portal Messages"],
-                    "associated_topics": ["Clinical Documentation", "Patient Communication"]
-                }
-            },
-            {
-                "id": "n-mod-medpalm2",
-                "type": "model",
-                "label": "Med-PaLM 2",
-                "position": {"x": 580, "y": 230},
-                "data": {
-                    "paper_count": 2,
-                    "associated_datasets": ["MedQA (USMLE)", "PubMedQA"],
-                    "associated_topics": ["Diagnostic Reasoning", "Clinical QA"]
-                }
-            },
-            {
                 "id": "n-mod-biogpt",
                 "type": "model",
                 "label": "BioGPT",
-                "position": {"x": 880, "y": 230},
+                "position": {"x": 80, "y": 50},
                 "data": {
                     "paper_count": 2,
                     "associated_datasets": ["PubMedQA", "BC5CDR"],
@@ -1241,10 +1234,32 @@ FALLBACK_DATA = {
                 }
             },
             {
+                "id": "n-mod-medpalm2",
+                "type": "model",
+                "label": "Med-PaLM 2",
+                "position": {"x": 520, "y": 50},
+                "data": {
+                    "paper_count": 2,
+                    "associated_datasets": ["MedQA (USMLE)", "PubMedQA"],
+                    "associated_topics": ["Diagnostic Reasoning", "Clinical QA"]
+                }
+            },
+            {
+                "id": "n-mod-gpt4",
+                "type": "model",
+                "label": "GPT-4",
+                "position": {"x": 960, "y": 50},
+                "data": {
+                    "paper_count": 3,
+                    "associated_datasets": ["Ambulatory Encounters", "Patient Portal Messages"],
+                    "associated_topics": ["Clinical Documentation", "Patient Communication"]
+                }
+            },
+            {
                 "id": "n-mod-llama2",
                 "type": "model",
                 "label": "Llama 2 70B",
-                "position": {"x": 260, "y": 500},
+                "position": {"x": 1400, "y": 50},
                 "data": {
                     "paper_count": 1,
                     "associated_datasets": ["MetaQA"],
@@ -1257,7 +1272,7 @@ FALLBACK_DATA = {
                 "id": "n-dat-pubmedqa",
                 "type": "dataset",
                 "label": "PubMedQA",
-                "position": {"x": 740, "y": 380},
+                "position": {"x": 300, "y": 440},
                 "data": {
                     "paper_count": 2,
                     "associated_models": ["BioGPT", "Med-PaLM 2"],
@@ -1268,7 +1283,7 @@ FALLBACK_DATA = {
                 "id": "n-dat-medqa",
                 "type": "dataset",
                 "label": "MedQA (USMLE)",
-                "position": {"x": 580, "y": 500},
+                "position": {"x": 520, "y": 440},
                 "data": {
                     "paper_count": 2,
                     "associated_models": ["Med-PaLM 2"],
@@ -1279,7 +1294,7 @@ FALLBACK_DATA = {
                 "id": "n-dat-bc5cdr",
                 "type": "dataset",
                 "label": "BC5CDR",
-                "position": {"x": 900, "y": 380},
+                "position": {"x": 80, "y": 440},
                 "data": {
                     "paper_count": 1,
                     "associated_models": ["BioGPT"],
@@ -1289,21 +1304,10 @@ FALLBACK_DATA = {
 
             # Method Nodes
             {
-                "id": "n-met-rag",
-                "type": "method",
-                "label": "Retrieval-Augmented Generation",
-                "position": {"x": 100, "y": 620},
-                "data": {
-                    "paper_count": 3,
-                    "associated_models": ["GPT-4", "Med-PaLM 2"],
-                    "associated_topics": ["Hallucination Mitigation"]
-                }
-            },
-            {
                 "id": "n-met-cot",
                 "type": "method",
                 "label": "Chain-of-Thought Prompting",
-                "position": {"x": 420, "y": 620},
+                "position": {"x": 520, "y": 580},
                 "data": {
                     "paper_count": 2,
                     "associated_models": ["Med-PaLM 2", "GPT-4"],
@@ -1314,49 +1318,47 @@ FALLBACK_DATA = {
                 "id": "n-met-rct",
                 "type": "method",
                 "label": "Randomized Controlled Trial",
-                "position": {"x": -80, "y": 230},
+                "position": {"x": 960, "y": 440},
                 "data": {
                     "paper_count": 2,
                     "associated_models": ["GPT-4"],
                     "associated_topics": ["Clinical Documentation"]
                 }
             },
+            {
+                "id": "n-met-rag",
+                "type": "method",
+                "label": "Retrieval-Augmented Generation",
+                "position": {"x": 1400, "y": 440},
+                "data": {
+                    "paper_count": 3,
+                    "associated_models": ["GPT-4", "Med-PaLM 2"],
+                    "associated_topics": ["Hallucination Mitigation"]
+                }
+            },
 
             # Topic Nodes
-            {
-                "id": "n-top-doc",
-                "type": "topic",
-                "label": "Clinical Documentation Automation",
-                "position": {"x": -80, "y": 80},
-                "data": {"papers": 2, "keyphrases": ["SOAP notes", "EHR", "burnout"]}
-            },
             {
                 "id": "n-top-qa",
                 "type": "topic",
                 "label": "Diagnostic Medical QA",
-                "position": {"x": 580, "y": -40},
+                "position": {"x": 300, "y": -120},
                 "data": {"papers": 2, "keyphrases": ["USMLE", "clinical reasoning", "accuracy"]}
+            },
+            {
+                "id": "n-top-doc",
+                "type": "topic",
+                "label": "Clinical Documentation Automation",
+                "position": {"x": 960, "y": -120},
+                "data": {"papers": 2, "keyphrases": ["SOAP notes", "EHR", "burnout"]}
             },
 
             # Research Gap Nodes
             {
-                "id": "n-gap-hallucination",
-                "type": "gap",
-                "label": "GAP: Clinical Hallucination Risk",
-                "position": {"x": 100, "y": 760},
-                "data": {
-                    "category": "Repeated Limitation",
-                    "source_paper_title": "Hallucination Survey (2024)",
-                    "associated_topic": "Clinical Safety",
-                    "description": "2-4% hallucination rate of non-factual negative physical findings persists across modern foundation models.",
-                    "potential_directions": "Constrained decoding with real-time EHR schema validation and multi-agent clinical verification."
-                }
-            },
-            {
                 "id": "n-gap-multimodal",
                 "type": "gap",
                 "label": "GAP: Lack of Multimodal EHR Fusion",
-                "position": {"x": 420, "y": 760},
+                "position": {"x": 520, "y": 720},
                 "data": {
                     "category": "Underexplored Area",
                     "source_paper_title": "Med-PaLM 2 (2023)",
@@ -1365,32 +1367,237 @@ FALLBACK_DATA = {
                     "potential_directions": "Unified vision-language architectures integrating DICOM imaging with textual clinical notes."
                 }
             },
-
-            # Finding / Claim Nodes
             {
-                "id": "n-fnd-time48",
-                "type": "finding",
-                "label": "FINDING: 48% Documentation Time Saved",
-                "position": {"x": -80, "y": -40},
+                "id": "n-gap-hallucination",
+                "type": "gap",
+                "label": "GAP: Clinical Hallucination Risk",
+                "position": {"x": 1400, "y": 720},
                 "data": {
-                    "claim_type": "Empirical Finding",
-                    "source_paper_title": "GPT-4 Clinical Notes (2024)",
-                    "claim_text": "Mean drafting time dropped from 8.8 minutes to 4.6 minutes per visit with equal completeness."
+                    "category": "Repeated Limitation",
+                    "source_paper_title": "Hallucination Survey (2024)",
+                    "associated_topic": "Clinical Safety",
+                    "description": "2-4% hallucination rate of non-factual negative physical findings persists across modern foundation models.",
+                    "potential_directions": "Constrained decoding with real-time EHR schema validation and multi-agent clinical verification."
                 }
             },
+
+            # Finding / Claim Nodes
             {
                 "id": "n-fnd-usmle86",
                 "type": "finding",
                 "label": "FINDING: 86.5% on MedQA (USMLE)",
-                "position": {"x": 420, "y": -40},
+                "position": {"x": 520, "y": -80},
                 "data": {
                     "claim_type": "Benchmark Record",
                     "source_paper_title": "Med-PaLM 2 (2023)",
                     "claim_text": "Exceeded prior medical exam state-of-the-art by 18% with 92.9% clinical consensus."
                 }
+            },
+            {
+                "id": "n-fnd-time48",
+                "type": "finding",
+                "label": "FINDING: 48% Documentation Time Saved",
+                "position": {"x": 960, "y": -80},
+                "data": {
+                    "claim_type": "Empirical Finding",
+                    "source_paper_title": "GPT-4 Clinical Notes (2024)",
+                    "claim_text": "Mean drafting time dropped from 8.8 minutes to 4.6 minutes per visit with equal completeness."
+                }
             }
         ],
         "edges": [
+            # ─────────────────────────────────────────────────────────────
+            # 1. SEQUENTIAL LITERATURE FLOW EDGES (Paper -> Paper Evolution & Approach Variation)
+            # ─────────────────────────────────────────────────────────────
+            {
+                "id": "e-flow-biogpt-medpalm",
+                "source": "n-paper-003",
+                "target": "n-paper-002",
+                "label": "Step 1 ➔ 2: Pretraining to Reasoning",
+                "predicate": "flows_to",
+                "data": {
+                    "is_flow_edge": True,
+                    "flow_step": "Stage 1 ➔ Stage 2",
+                    "source_label": "BioGPT (2023)",
+                    "target_label": "Med-PaLM 2 (2023)",
+                    "label": "Step 1 ➔ 2: Pretraining to Reasoning",
+                    "flow_narrative": "BioGPT established specialized in-domain pretraining on 15M PubMed abstracts; Med-PaLM 2 built upon this domain grounding by scaling to a 540B parameter foundation model with clinician instruction tuning and Chain-of-Thought reasoning.",
+                    "what_is_common": [
+                        "Transformer LLM architecture targeted at biomedical knowledge",
+                        "Shared benchmark: Both evaluated on PubMedQA medical question answering",
+                        "Objective: Overcoming biomedical terminology and reasoning barriers",
+                        "Corpus grounding: Biomedical scientific literature (PubMed/MEDLINE)"
+                    ],
+                    "how_approach_varies": "BioGPT trained a 347M parameter GPT architecture from scratch exclusively on PubMed abstracts; Med-PaLM 2 leveraged general 540B PaLM-2 scaled with clinician-curated instruction tuning and Chain-of-Thought prompting to pass the USMLE licensing exam.",
+                    "comparison_table": {
+                        "source": {
+                            "title": "BioGPT (2023)",
+                            "methods": ["Pre-training from scratch", "BPE tokenization"],
+                            "scale": "347 Million parameters",
+                            "focus": "Biomedical text mining & entity relation extraction",
+                            "validation": "PubMedQA (81.0%), BC5CDR relation extraction"
+                        },
+                        "target": {
+                            "title": "Med-PaLM 2 (2023)",
+                            "methods": ["Instruction Tuning", "Chain-of-Thought"],
+                            "scale": "540 Billion parameters (PaLM 2 base)",
+                            "focus": "Clinical diagnostic reasoning and consensus QA",
+                            "validation": "MedQA USMLE (86.5%), 92.9% physician consensus"
+                        }
+                    }
+                }
+            },
+            {
+                "id": "e-flow-medpalm-gpt4notes",
+                "source": "n-paper-002",
+                "target": "n-paper-001",
+                "label": "Step 2 ➔ 3: Licensing QA to Clinical Trial",
+                "predicate": "flows_to",
+                "data": {
+                    "is_flow_edge": True,
+                    "flow_step": "Stage 2 ➔ Stage 3",
+                    "source_label": "Med-PaLM 2 (2023)",
+                    "target_label": "GPT-4 Clinical Notes (2024)",
+                    "label": "Step 2 ➔ 3: Licensing QA to Clinical Trial",
+                    "flow_narrative": "Med-PaLM 2 demonstrated expert-level medical knowledge in standardized exam benchmarks (86.5% USMLE). GPT-4 Clinical Notes translated this knowledge into live practice, evaluating real-world clinical workflow efficiency across 1,200 outpatient patient encounters.",
+                    "what_is_common": [
+                        "Frontier Large Language Models evaluated for clinical utility",
+                        "Expert clinician oversight: Both evaluated by licensed practicing physicians",
+                        "Goal: Alleviating physician cognitive burden and clinical documentation overhead",
+                        "High benchmark consensus and completeness standards"
+                    ],
+                    "how_approach_varies": "Med-PaLM 2 focused on standardized diagnostic examination questions (multiple choice USMLE); GPT-4 Clinical Notes conducted an active randomized controlled trial measuring physician drafting time and note completeness in live outpatient clinics.",
+                    "comparison_table": {
+                        "source": {
+                            "title": "Med-PaLM 2 (2023)",
+                            "methods": ["Instruction Tuning", "Chain-of-Thought"],
+                            "domain": "Medical licensing examination questions",
+                            "key_result": "86.5% accuracy on USMLE, 92.9% physician consensus"
+                        },
+                        "target": {
+                            "title": "GPT-4 Clinical Notes (2024)",
+                            "methods": ["Randomized Controlled Trial", "Prompt Engineering"],
+                            "domain": "Ambulatory outpatient encounters (SOAP notes)",
+                            "key_result": "48% reduction in documentation time (8.8 to 4.6 min)"
+                        }
+                    }
+                }
+            },
+            {
+                "id": "e-flow-gpt4notes-hallucination",
+                "source": "n-paper-001",
+                "target": "n-paper-004",
+                "label": "Step 3 ➔ 4: Workflow to Safety Auditing",
+                "predicate": "flows_to",
+                "data": {
+                    "is_flow_edge": True,
+                    "flow_step": "Stage 3 ➔ Stage 4",
+                    "source_label": "GPT-4 Clinical Notes (2024)",
+                    "target_label": "Hallucination Survey (2024)",
+                    "label": "Step 3 ➔ 4: Workflow to Safety Auditing",
+                    "flow_narrative": "GPT-4 Clinical Notes uncovered a persistent 4.2% factual hallucination rate during clinical drafting that required human override. The Hallucination Survey systematically audited this vulnerability across 78 healthcare trials, establishing that Retrieval-Augmented Generation (RAG) is essential to suppress clinical errors.",
+                    "what_is_common": [
+                        "Investigates GPT-4 foundation model reliability in clinical healthcare",
+                        "Focuses on clinical accuracy, factual verification, and patient safety risk",
+                        "Identifies ungrounded generative hallucinations as the primary barrier to autonomous deployment",
+                        "Recommends clinician-in-the-loop validation safeguards"
+                    ],
+                    "how_approach_varies": "GPT-4 Clinical Notes relied on manual physician vigilance and override during documentation; Hallucination Survey proposes automated system architectures (Retrieval-Augmented Generation and constrained decoding) to reduce hallucinations from 14.2% down to 2.8%.",
+                    "comparison_table": {
+                        "source": {
+                            "title": "GPT-4 Clinical Notes (2024)",
+                            "approach": "Single-center randomized controlled trial",
+                            "error_rate": "4.2% hallucination rate requiring manual physician override",
+                            "mitigation": "Physician review before note sign-off"
+                        },
+                        "target": {
+                            "title": "Hallucination Survey (2024)",
+                            "approach": "Systematic survey of 78 clinical trials + RAG benchmarking",
+                            "error_rate": "14.2% ungrounded error rate reduced to 2.8% with RAG",
+                            "mitigation": "Retrieval-Augmented Generation & constrained decoding"
+                        }
+                    }
+                }
+            },
+            {
+                "id": "e-flow-hallucination-patientcomm",
+                "source": "n-paper-004",
+                "target": "n-paper-005",
+                "label": "Step 4 ➔ 5: Safety Guardrails to Bedside Translation",
+                "predicate": "flows_to",
+                "data": {
+                    "is_flow_edge": True,
+                    "flow_step": "Stage 4 ➔ Stage 5",
+                    "source_label": "Hallucination Survey (2024)",
+                    "target_label": "Patient Comm LLM (2024)",
+                    "label": "Step 4 ➔ 5: Safety Guardrails to Bedside Translation",
+                    "flow_narrative": "The Hallucination Survey established safety guardrails and accuracy verification pipelines; Patient Comm LLM applied these safe generative principles directly to patient-facing portal communication, balancing technical safety with interpersonal empathy and clarity.",
+                    "what_is_common": [
+                        "Clinical communication safety and patient risk management",
+                        "Aim: Mitigating communication errors while freeing physician time",
+                        "Evaluating LLM output under direct expert medical review"
+                    ],
+                    "how_approach_varies": "Hallucination Survey addressed factual diagnostic accuracy and RAG citation verification; Patient Comm LLM evaluated human-centered communication quality, scoring empathy (4.1/5.0 vs 3.2 control) and readability.",
+                    "comparison_table": {
+                        "source": {
+                            "title": "Hallucination Survey (2024)",
+                            "metric": "Hallucination Error Rate & Citation Fabrication Index",
+                            "focus": "Factual fidelity and external knowledge retrieval"
+                        },
+                        "target": {
+                            "title": "Patient Comm LLM (2024)",
+                            "metric": "Empathy Score (4.1/5.0) & Patient Clarity Index",
+                            "focus": "Interpersonal tone, compassionate language, and physician time saved"
+                        }
+                    }
+                }
+            },
+
+            # ─────────────────────────────────────────────────────────────
+            # 2. CROSS-PAPER COMPARATIVE EDGES (Commonalities & Variations)
+            # ─────────────────────────────────────────────────────────────
+            {
+                "id": "e-comp-medpalm-hallucination",
+                "source": "n-paper-002",
+                "target": "n-paper-004",
+                "label": "Compares: Diagnostic QA vs Hallucination Benchmarks",
+                "predicate": "compares_with",
+                "data": {
+                    "is_comparative_edge": True,
+                    "source_label": "Med-PaLM 2 (2023)",
+                    "target_label": "Hallucination Survey (2024)",
+                    "label": "Compares: Diagnostic QA vs Hallucination Benchmarks",
+                    "what_is_common": [
+                        "Evaluates Med-PaLM 2 and PaLM-2 models",
+                        "Examines clinical accuracy and diagnostic reasoning precision",
+                        "Evaluated on PubMedQA and biomedical benchmarks"
+                    ],
+                    "how_approach_varies": "Med-PaLM 2 optimized for peak exam score accuracy; Hallucination Survey analyzed adversarial edge cases and omission errors across multiple model families."
+                }
+            },
+            {
+                "id": "e-comp-gpt4notes-patientcomm",
+                "source": "n-paper-001",
+                "target": "n-paper-005",
+                "label": "Compares: Administrative EHR vs Patient Portal",
+                "predicate": "compares_with",
+                "data": {
+                    "is_comparative_edge": True,
+                    "source_label": "GPT-4 Clinical Notes (2024)",
+                    "target_label": "Patient Comm LLM (2024)",
+                    "label": "Compares: Administrative EHR vs Patient Portal",
+                    "what_is_common": [
+                        "Both utilize GPT-4 as the underlying language model",
+                        "Both measure physician documentation time saved (48% in notes, 62% in inbox)",
+                        "Both conduct prospective controlled clinical trials with physician review"
+                    ],
+                    "how_approach_varies": "Notes paper focuses on structured SOAP note transcription; Patient Comm focuses on empathetic messaging, clear patient health literacy, and conversational tone."
+                }
+            },
+
+            # ─────────────────────────────────────────────────────────────
+            # 3. ENTITY RELATIONSHIP EDGES
+            # ─────────────────────────────────────────────────────────────
             # Paper -> Model
             {"id": "e-p1-m1", "source": "n-paper-001", "target": "n-mod-gpt4", "label": "uses", "predicate": "uses"},
             {"id": "e-p2-m2", "source": "n-paper-002", "target": "n-mod-medpalm2", "label": "proposes", "predicate": "proposes"},

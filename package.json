@@ -1,0 +1,13 @@
+{
+  "name": "research-nexus",
+  "version": "2.0.0",
+  "description": "Research Intelligence Core & Manuscript Authoring Platform",
+  "private": true,
+  "scripts": {
+    "demo": "python run_demo.py",
+    "dev:demo": "python run_demo.py",
+    "start": "python run_demo.py",
+    "generate-fallback": "python backend/generate_fallback.py",
+    "mock-server": "python backend/mock_server.py"
+  }
+}
