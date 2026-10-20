@@ -8,3 +8,6 @@ uploads/
 .DS_Store
 scratch_*.py
 backend/scratch_*.py
+*.log
+backend/*.log
+frontend/*.log
